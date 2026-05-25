@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS-401 Assignment 4 — Abdul Sami</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bp-blue: #1a3a5c;
+    --bp-line: #2e6da4;
+    --bp-grid: rgba(46,109,164,0.18);
+    --bp-bright: #4fc3f7;
+    --bp-accent: #00e5ff;
+    --bp-glow: rgba(79,195,247,0.35);
+    --bp-text: #b3d9f7;
+    --bp-dim: rgba(179,217,247,0.55);
+    --bp-white: #e8f4fd;
+    --bp-green: #00ffa3;
+    --bp-amber: #ffcc02;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0a1929;
+    color: var(--bp-text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Blueprint grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--bp-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bp-grid) 1px, transparent 1px),
+      linear-gradient(rgba(46,109,164,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(46,109,164,0.06) 1px, transparent 1px);
+    background-size: 80px 80px, 80px 80px, 20px 20px, 20px 20px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Animated scan line */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -10%;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--bp-accent), transparent);
+    opacity: 0.35;
+    animation: scanline 6s linear infinite;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  @keyframes scanline {
+    0% { top: -2%; }
+    100% { top: 102%; }
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 28px 80px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    padding: 50px 0 40px;
+    position: relative;
+  }
+
+  .header-badge {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--bp-accent);
+    border: 1px solid var(--bp-accent);
+    padding: 4px 16px;
+    margin-bottom: 20px;
+    animation: fadeIn 0.8s ease both;
+    text-transform: uppercase;
+    position: relative;
+  }
+
+  .header-badge::before,
+  .header-badge::after {
+    content: '◆';
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    font-size: 8px;
+    color: var(--bp-accent);
+  }
+  .header-badge::before { left: -14px; }
+  .header-badge::after { right: -14px; }
+
+  .main-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 900;
+    color: var(--bp-white);
+    letter-spacing: 2px;
+    animation: titleReveal 1s ease 0.2s both;
+    text-shadow: 0 0 40px rgba(79,195,247,0.4);
+    line-height: 1.15;
+  }
+
+  .subtitle-line {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--bp-dim);
+    margin-top: 12px;
+    letter-spacing: 2px;
+    animation: fadeIn 1s ease 0.5s both;
+  }
+
+  @keyframes titleReveal {
+    from { opacity: 0; clip-path: inset(0 100% 0 0); }
+    to   { opacity: 1; clip-path: inset(0 0% 0 0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── META TABLE ── */
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1px;
+    border: 1px solid var(--bp-line);
+    margin: 32px 0;
+    animation: fadeIn 0.8s ease 0.7s both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .meta-grid::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--bp-bright);
+    opacity: 0;
+    animation: borderPulse 3s ease infinite 1.5s;
+    pointer-events: none;
+  }
+
+  @keyframes borderPulse {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 0.4; }
+  }
+
+  .meta-cell {
+    background: rgba(26,58,92,0.5);
+    padding: 14px 18px;
+    border: 1px solid rgba(46,109,164,0.3);
+    backdrop-filter: blur(4px);
+  }
+
+  .meta-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--bp-accent);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .meta-value {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--bp-white);
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section {
+    margin: 48px 0 24px;
+    animation: fadeIn 0.8s ease both;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .section-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--bp-accent);
+    background: rgba(0,229,255,0.08);
+    border: 1px solid var(--bp-accent);
+    padding: 2px 8px;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--bp-white);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--bp-line), transparent);
+    position: relative;
+  }
+
+  .section-line::after {
+    content: '';
+    position: absolute;
+    left: 0; top: -1px;
+    width: 30%;
+    height: 3px;
+    background: var(--bp-accent);
+    animation: lineSlide 3s ease infinite;
+    opacity: 0.5;
+  }
+
+  @keyframes lineSlide {
+    0% { left: 0%; opacity: 0.5; }
+    60% { opacity: 0.7; }
+    100% { left: 70%; opacity: 0; }
+  }
+
+  /* ── ABSTRACT BOX ── */
+  .abstract-box {
+    background: rgba(10,30,50,0.7);
+    border: 1px solid var(--bp-line);
+    border-left: 3px solid var(--bp-accent);
+    padding: 22px 24px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--bp-text);
+    position: relative;
+    backdrop-filter: blur(6px);
+  }
+
+  .abstract-box::before {
+    content: 'ABSTRACT';
+    position: absolute;
+    top: -10px; left: 20px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--bp-accent);
+    background: #0a1929;
+    padding: 0 8px;
+  }
+
+  /* ── STAT CARDS ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .stat-card {
+    background: rgba(26,58,92,0.4);
+    border: 1px solid var(--bp-line);
+    padding: 18px 16px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.2s;
+    cursor: default;
+  }
+
+  .stat-card:hover {
+    border-color: var(--bp-accent);
+    transform: translateY(-2px);
+  }
+
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--bp-accent);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+    transform-origin: left;
+  }
+
+  .stat-card:hover::after { transform: scaleX(1); }
+
+  .stat-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--bp-accent);
+    display: block;
+    text-shadow: 0 0 20px rgba(0,229,255,0.5);
+    animation: countUp 0.6s ease both;
+  }
+
+  .stat-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--bp-dim);
+    text-transform: uppercase;
+    margin-top: 6px;
+    display: block;
+  }
+
+  /* ── TECH STACK ── */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px;
+    border: 1px solid rgba(46,109,164,0.4);
+    margin: 16px 0;
+    background: rgba(46,109,164,0.2);
+  }
+
+  .stack-layer {
+    background: rgba(10,25,45,0.85);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background 0.25s;
+  }
+
+  .stack-layer:hover { background: rgba(26,58,92,0.7); }
+
+  .stack-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-frontend { background: var(--bp-accent); box-shadow: 0 0 8px var(--bp-accent); }
+  .dot-backend  { background: var(--bp-green);  box-shadow: 0 0 8px var(--bp-green); }
+  .dot-db       { background: var(--bp-amber);  box-shadow: 0 0 8px var(--bp-amber); }
+  .dot-auth     { background: #ff6b8a;           box-shadow: 0 0 8px #ff6b8a; }
+  .dot-deploy   { background: #b39ddb;           box-shadow: 0 0 8px #b39ddb; }
+
+  .stack-purpose {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    color: var(--bp-dim);
+  }
+
+  .stack-tech {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--bp-white);
+    font-weight: 600;
+  }
+
+  /* ── BID TABLE ── */
+  .bid-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--bp-line);
+    margin: 16px 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead tr {
+    background: rgba(0,229,255,0.08);
+  }
+
+  th {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--bp-accent);
+    text-transform: uppercase;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--bp-line);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(46,109,164,0.15);
+    color: var(--bp-text);
+    font-family: 'Rajdhani', sans-serif;
+    vertical-align: middle;
+  }
+
+  tr:hover td { background: rgba(79,195,247,0.04); }
+
+  .outcome-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    letter-spacing: 1px;
+    display: inline-block;
+  }
+
+  .badge-accepted { color: var(--bp-green); border: 1px solid var(--bp-green); background: rgba(0,255,163,0.06); }
+  .badge-delivered { color: var(--bp-amber); border: 1px solid var(--bp-amber); background: rgba(255,204,2,0.06); }
+  .badge-noreply  { color: #777; border: 1px solid #444; }
+  .badge-review   { color: var(--bp-bright); border: 1px solid var(--bp-bright); background: rgba(79,195,247,0.06); }
+  .badge-positive { color: #b39ddb; border: 1px solid #b39ddb; background: rgba(179,157,219,0.06); }
+
+  /* ── TIMELINE ── */
+  .timeline {
+    position: relative;
+    padding-left: 32px;
+    margin: 16px 0;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px; top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--bp-accent), transparent);
+    animation: growDown 1.5s ease both;
+  }
+
+  @keyframes growDown {
+    from { transform: scaleY(0); transform-origin: top; }
+    to   { transform: scaleY(1); transform-origin: top; }
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 24px;
+    animation: fadeIn 0.6s ease both;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    top: 6px;
+    width: 10px; height: 10px;
+    border: 2px solid var(--bp-accent);
+    background: var(--bp-blue);
+    transform: rotate(45deg);
+  }
+
+  .timeline-day {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    color: var(--bp-accent);
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .timeline-content {
+    background: rgba(26,58,92,0.3);
+    border: 1px solid rgba(46,109,164,0.25);
+    border-left: 2px solid var(--bp-line);
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .timeline-rate {
+    color: var(--bp-dim);
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  /* ── INSIGHT CARDS ── */
+  .insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+
+  .insight-card {
+    background: rgba(10,25,45,0.7);
+    border: 1px solid rgba(46,109,164,0.3);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.2s;
+  }
+
+  .insight-card:hover {
+    border-color: var(--bp-bright);
+    transform: translateY(-2px);
+  }
+
+  .insight-card::before {
+    content: attr(data-num);
+    position: absolute;
+    right: 12px; top: 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 36px;
+    color: rgba(79,195,247,0.06);
+    line-height: 1;
+    font-weight: 900;
+  }
+
+  .insight-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--bp-white);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .insight-icon {
+    width: 6px; height: 6px;
+    background: var(--bp-accent);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+    box-shadow: 0 0 6px var(--bp-accent);
+  }
+
+  .insight-body {
+    font-size: 13.5px;
+    color: var(--bp-dim);
+    line-height: 1.65;
+  }
+
+  /* ── RESPONSE RATE CHART ── */
+  .chart-wrap {
+    background: rgba(10,25,45,0.6);
+    border: 1px solid var(--bp-line);
+    padding: 24px;
+    margin: 16px 0;
+    position: relative;
+  }
+
+  .chart-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--bp-accent);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .bar-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--bp-dim);
+    width: 55px;
+    flex-shrink: 0;
+    letter-spacing: 1px;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 18px;
+    background: rgba(46,109,164,0.15);
+    border: 1px solid rgba(46,109,164,0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    position: relative;
+    animation: barGrow 1.2s ease both;
+  }
+
+  @keyframes barGrow {
+    from { width: 0; }
+  }
+
+  .bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 20px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15));
+  }
+
+  .bar-val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--bp-white);
+    width: 32px;
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  /* ── PLATFORM CARDS ── */
+  .platform-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 16px 0;
+  }
+
+  @media (max-width: 600px) { .platform-grid { grid-template-columns: 1fr; } }
+
+  .platform-card {
+    background: rgba(10,25,45,0.65);
+    border: 1px solid rgba(46,109,164,0.35);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .platform-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    animation: borderPulse 4s ease infinite;
+  }
+
+  .platform-card:first-child::after { background: var(--bp-accent); }
+  .platform-card:last-child::after  { background: var(--bp-green); }
+
+  .platform-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--bp-white);
+    margin-bottom: 14px;
+  }
+
+  .platform-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(46,109,164,0.12);
+    font-size: 13px;
+  }
+
+  .platform-field:last-child { border-bottom: none; }
+
+  .field-key { color: var(--bp-dim); font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 1px; }
+  .field-val { color: var(--bp-white); font-weight: 600; font-size: 14px; text-align: right; }
+
+  /* ── DELIVERABLES ── */
+  .deliverable-list {
+    margin: 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .deliverable-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: rgba(26,58,92,0.25);
+    border: 1px solid rgba(46,109,164,0.2);
+    padding: 12px 16px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .deliverable-item:hover {
+    border-color: var(--bp-accent);
+    background: rgba(26,58,92,0.5);
+  }
+
+  .del-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--bp-accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .del-title {
+    font-weight: 700;
+    color: var(--bp-white);
+    font-size: 15px;
+    margin-bottom: 3px;
+  }
+
+  .del-desc {
+    font-size: 13px;
+    color: var(--bp-dim);
+    line-height: 1.5;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(46,109,164,0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer-id {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--bp-dim);
+    letter-spacing: 2px;
+  }
+
+  .footer-stamp {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    color: rgba(79,195,247,0.3);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    border: 1px solid rgba(79,195,247,0.2);
+    padding: 4px 10px;
+    transform: rotate(-1.5deg);
+    display: inline-block;
+  }
+
+  /* ── ANIMATION DELAYS FOR SECTIONS ── */
+  .section:nth-child(1)  { animation-delay: 0.1s; }
+  .section:nth-child(2)  { animation-delay: 0.2s; }
+  .section:nth-child(3)  { animation-delay: 0.3s; }
+  .section:nth-child(4)  { animation-delay: 0.4s; }
+  .section:nth-child(5)  { animation-delay: 0.5s; }
+  .section:nth-child(6)  { animation-delay: 0.6s; }
+  .section:nth-child(7)  { animation-delay: 0.7s; }
+  .section:nth-child(8)  { animation-delay: 0.8s; }
+
+  /* ── CORNER DECORATIONS ── */
+  .corner-deco {
+    position: fixed;
+    width: 60px; height: 60px;
+    border-color: rgba(79,195,247,0.2);
+    border-style: solid;
+    pointer-events: none;
+    z-index: 1;
+    animation: fadeIn 1.5s ease 0.5s both;
+  }
+
+  .corner-tl { top: 20px; left: 20px; border-width: 2px 0 0 2px; }
+  .corner-tr { top: 20px; right: 20px; border-width: 2px 2px 0 0; }
+  .corner-bl { bottom: 20px; left: 20px; border-width: 0 0 2px 2px; }
+  .corner-br { bottom: 20px; right: 20px; border-width: 0 2px 2px 0; }
+
+  /* ── DB SCHEMA TABLE ── */
+  .schema-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .schema-table {
+    background: rgba(10,25,45,0.8);
+    border: 1px solid var(--bp-line);
+    overflow: hidden;
+  }
+
+  .schema-header {
+    background: rgba(0,229,255,0.1);
+    border-bottom: 1px solid var(--bp-line);
+    padding: 10px 14px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--bp-accent);
+    letter-spacing: 1px;
+  }
+
+  .schema-row {
+    padding: 7px 14px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--bp-dim);
+    border-bottom: 1px solid rgba(46,109,164,0.1);
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .schema-row:last-child { border-bottom: none; }
+
+  .schema-pk { color: var(--bp-amber); }
+  .schema-fk { color: var(--bp-green); }
+  .schema-type { color: rgba(179,217,247,0.4); font-size: 10px; }
+
+  /* ── PROJECTS ── */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .project-card {
+    background: rgba(10,25,45,0.65);
+    border: 1px solid rgba(46,109,164,0.3);
+    padding: 20px;
+    transition: border-color 0.3s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-card:hover {
+    border-color: var(--bp-bright);
+    transform: translateY(-3px);
+  }
+
+  .project-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--bp-white);
+    margin-bottom: 10px;
+  }
+
+  .project-tag {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 2px 7px;
+    border: 1px solid;
+    margin: 2px 2px 0 0;
+  }
+
+  .tag-react   { color: var(--bp-accent); border-color: rgba(0,229,255,0.4); }
+  .tag-node    { color: var(--bp-green);  border-color: rgba(0,255,163,0.4); }
+  .tag-mysql   { color: var(--bp-amber);  border-color: rgba(255,204,2,0.4); }
+  .tag-express { color: #ff6b8a;          border-color: rgba(255,107,138,0.4); }
+  .tag-jwt     { color: #b39ddb;          border-color: rgba(179,157,219,0.4); }
+
+  .project-url {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: rgba(79,195,247,0.5);
+    margin-top: 10px;
+    display: block;
+    text-decoration: none;
+  }
+
+  /* ── BLINK CURSOR ── */
+  .cursor {
+    display: inline-block;
+    width: 8px; height: 2px;
+    background: var(--bp-accent);
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="corner-deco corner-tl"></div>
+<div class="corner-deco corner-tr"></div>
+<div class="corner-deco corner-bl"></div>
+<div class="corner-deco corner-br"></div>
+
+<div class="container">
+
+  <!-- ── HEADER ── -->
+  <div class="header">
+    <div class="header-badge">CS-401 · ASSIGNMENT 4 · MAD</div>
+    <h1 class="main-title">Strategic Bidding<br>& Freelancing</h1>
+    <div class="subtitle-line">Freelancing Experience Through Strategic Bidding<span class="cursor"></span></div>
+  </div>
+
+  <!-- ── STUDENT META ── -->
+  <div class="meta-grid">
+    <div class="meta-cell">
+      <div class="meta-label">Student Name</div>
+      <div class="meta-value">Abdul Sami</div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-label">Student ID</div>
+      <div class="meta-value">8929</div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-label">Course</div>
+      <div class="meta-value">MAD</div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-label">Instructor</div>
+      <div class="meta-value">Dr. Sadaf Tanveer</div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-label">Period</div>
+      <div class="meta-value">Apr 14–18, 2026</div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-label">Platforms</div>
+      <div class="meta-value">Freelancer · PPH</div>
+    </div>
+  </div>
+
+  <!-- ── ABSTRACT ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">§00</span>
+      <span class="section-title">Abstract</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="abstract-box">
+      This assignment documents a 5-day strategic freelancing experience on <strong style="color:var(--bp-white)">Freelancer.com</strong> and <strong style="color:var(--bp-white)">PeoplePerHour</strong>, combined with the development of a professional full-stack web application. The student created optimised platform profiles, submitted 10 targeted bids offering pro-bono services to build a verified portfolio, and maintained detailed communication logs and daily reflections. A complete E-Commerce web application (<strong style="color:var(--bp-accent)">ShopEase</strong>) was developed using React, Node.js, Express, and MySQL to demonstrate technical competence. The experience yielded a <strong style="color:var(--bp-green)">60% client response rate</strong> and surfaced actionable insights for transitioning into paid freelancing work.
+    </div>
+  </div>
+
+  <!-- ── KEY STATS ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">§01</span>
+      <span class="section-title">Key Metrics</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-num">10</span>
+        <span class="stat-label">Total Bids</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">60%</span>
+        <span class="stat-label">Response Rate</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">4</span>
+        <span class="stat-label">Projects Won</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">2</span>
+        <span class="stat-label">Delivered</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">⭐5</span>
+        <span class="stat-label">Star Review</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">5</span>
+        <span class="stat-label">Days Active</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PLATFORM PROFILES ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">§01</span>
+      <span class="section-title">Part 1 — Platform Profiles</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="platform-grid">
+      <div class="platform-card">
+        <div class="platform-name">Freelancer.com</div>
+        <div class="platform-field"><span class="field-key">Handle</span><span class="field-val">AlishbaMalikDev</span></div>
+        <div class="platform-field"><span class="field-key">Type</span><span class="field-val">Free Tier</span></div>
+        <div class="platform-field"><span class="field-key">Verification</span><span class="field-val">Email + Phone</span></div>
+        <div class="platform-field"><span class="field-key">Hourly Rate</span><span class="field-val" style="color:var(--bp-green)">$0 (portfolio)</span></div>
+        <div class="platform-field"><span class="field-key">Headline</span><span class="field-val" style="font-size:12px;color:var(--bp-dim)">Full-Stack · React · Node.js · MySQL</span></div>
+      </div>
+      <div class="platform-card">
+        <div class="platform-name">PeoplePerHour</div>
+        <div class="platform-field"><span class="field-key">Handle</span><span class="field-val">alishbamalikdev</span></div>
+        <div class="platform-field"><span class="field-key">Verification</span><span class="field-val">Email + LinkedIn</span></div>
+        <div class="platform-field"><span class="field-key">Response Time</span><span class="field-val">Within 4 hrs</span></div>
+        <div class="platform-field"><span class="field-key">Availability</span><span class="field-val" style="color:var(--bp-green)">40 hrs/week</span></div>
+        <div class="platform-field"><span class="field-key">Hourly Rate</span><span class="field-val" style="font-size:12px;color:var(--bp-dim)">£0 (portfolio building)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SHOPEASE APP ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">§02</span>
+      <span class="section-title">Part 2 — ShopEase App Development</span>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="projects-grid" style="margin-bottom:20px">
+      <div class="project-card">
+        <div class="project-name">ShopEase</div>
+        <div>
+          <span class="project-tag tag-react">React 18</span>
+          <span class="project-tag tag-node">Node.js</span>
+          <span class="project-tag tag-express">Express</span>
+          <span class="project-tag tag-mysql">MySQL 8</span>
+          <span class="project-tag tag-jwt">JWT</span>
+        </div>
+        <a class="project-url" href="#">shopease-demo.vercel.app</a>
+      </div>
+      <div class="project-card">
+        <div class="project-name">LearnHub LMS</div>
+        <div>
+          <span class="project-tag tag-react">React</span>
+          <span class="project-tag tag-express">Express</span>
+          <span class="project-tag tag-mysql">MySQL</span>
+          <span class="project-tag tag-jwt">JWT Auth</span>
+        </div>
+        <a class="project-url" href="#">learnhub-demo.vercel.app</a>
+      </div>
+      <div class="project-card">
+        <div class="project-name">TaskFlow CRUD</div>
+        <div>
+          <span class="project-tag tag-react">React</span>
+          <span class="project-tag tag-node">Node.js</span>
+          <span class="project-tag tag-mysql">MySQL</span>
+        </div>
+        <a class="project-url" href="#">taskflow-demo.vercel.app</a>
+      </div>
+    </div>
+
+    <!-- Technology Stack -->
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--bp-accent);letter-spacing:2px;margin-bottom:8px;text-transform:uppercase;">Technology Stack</div>
+    <div class="stack-grid">
+      <div class="stack-layer">
+        <div class="stack-dot dot-frontend"></div>
+        <div>
+          <div class="stack-tech">React.js 18 + Vite</div>
+          <div class="stack-purpose">Frontend UI</div>
+        </div>
+      </div>
+      <div class="stack-layer">
+        <div class="stack-dot dot-backend"></div>
+        <div>
+          <div class="stack-tech">Node.js + Express.js</div>
+          <div class="stack-purpose">REST API Server</div>
+        </div>
+      </div>
+      <div class="stack-layer">
+        <div class="stack-dot dot-db"></div>
+        <div>
+          <div class="stack-tech">MySQL 8.0</div>
+          <div class="stack-purpose">Relational Database</div>
+        </div>
+      </div>
+      <div class="stack-layer">
+        <div class="stack-dot dot-auth"></div>
+        <div>
+          <div class="stack-tech">JWT + bcrypt</div>
+          <div class="stack-purpose">Auth & Security</div>
+        </div>
+      </div>
+      <div class="stack-layer">
+        <div class="stack-dot dot-deploy"></div>
+        <div>
+          <div class="stack-tech">Vercel + Render</div>
+          <div class="stack-purpose">Deployment</div>
+        </div>
+      </div>
+      <div class="stack-layer">
+        <div class="stack-dot" style="background:#ff9800;box-shadow:0 0 8px #ff9800"></div>
+        <div>
+          <div class="stack-tech">Tailwind CSS</div>
+          <div class="stack-purpose">Responsive Styling</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DB Schema -->
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--bp-accent);letter-spacing:2px;margin:20px 0 8px;text-transform:uppercase;">Database Schema</div>
+    <div class="schema-grid">
+      <div class="schema-table">
+        <div class="schema-header">users</div>
+        <div class="schema-row"><span class="schema-pk">id</span><span class="schema-type">INT PK</span></div>
+        <div class="schema-row"><span>name</span><span class="schema-type">VARCHAR(100)</span></div>
+        <div class="schema-row"><span>email</span><span class="schema-type">VARCHAR UNIQUE</span></div>
+        <div class="schema-row"><span>password</span><span class="schema-type">VARCHAR(255)</span></div>
+        <div class="schema-row"><span>role</span><span class="schema-type">ENUM user|admin</span></div>
+      </div>
+      <div class="schema-table">
+        <div class="schema-header">products</div>
+        <div class="schema-row"><span class="schema-pk">id</span><span class="schema-type">INT PK</span></div>
+        <div class="schema-row"><span>name</span><span class="schema-type">VARCHAR(200)</span></div>
+        <div class="schema-row"><span>price</span><span class="schema-type">DECIMAL(10,2)</span></div>
+        <div class="schema-row"><span>stock</span><span class="schema-type">INT</span></div>
+        <div class="schema-row"><span>category</span><span class="schema-type">VARCHAR(100)</span></div>
+      </div>
+      <div class="schema-table">
+        <div class="schema-header">orders</div>
+        <div class="schema-row"><span class="schema-pk">id</span><span class="schema-type">INT PK</span></div>
+        <div class="schema-row"><span class="schema-fk">user_id</span><span class="schema-type">FK → users</span></div>
+        <div class="schema-row"><span>total</span><span class="schema-type">DECIMAL(10,2)</span></div>
+        <div class="schema-row"><span>status</span><span class="schema-type">ENUM</span></div>
+        <div class="schema-row"><span>address</span><span class="schema-type">TEXT</span></div>
+      </div>
+      <div class="schema-table">
+        <div class="schema-header">order_items</div>
+        <div class="schema-row"><span class="schema-pk">id</span><span class="schema-type">INT PK</span></div>
+        <div class="schema-row"><span class="schema-fk">order_id</span><span class="schema-type">FK → orders</span></div>
+        <div class="schema-row"><span class="schema-fk">product_id</span><span class="schema-type">FK → products</span></div>
+        <div class="schema-row"><span>quantity</span><span class="schema-type">INT</span></div>
+        <div class="schema-row"><span>unit_price</span><span class="schema-type">DECIMAL(10,2)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BIDDING TIMELINE ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">§03</span>
+      <span class="section-title">Part 3 — 5-Day Bidding Timeline</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item" style="animation-delay:0.1s">
+        <div class="timeline-day">DAY 1 — APR 14</div>
+        <div class="timeline-content">
+          <strong style="color:var(--bp-white)">Bid #1</strong> — Landing Page for Coffee Shop <em style="color:var(--bp-dim)">(Freelancer)</em><br>
+          <strong style="color:var(--bp-white)">Bid #2</strong> — React Product Listing Component <em style="color:var(--bp-dim)">(PeoplePerHour)</em>
+          <div class="timeline-rate">Frontend-heavy targets • 50% response rate • CafeBloom project accepted</div>
+        </div>
+      </div>
+      <div class="timeline-item" style="animation-delay:0.2s">
+        <div class="timeline-day">DAY 2 — APR 15</div>
+        <div class="timeline-content">
+          <strong style="color:var(--bp-white)">Bid #3</strong> — Node.js REST API for Blog App <em style="color:var(--bp-dim)">(Freelancer)</em><br>
+          <strong style="color:var(--bp-white)">Bid #4</strong> — Simple LMS Dashboard React <em style="color:var(--bp-dim)">(PeoplePerHour)</em>
+          <div class="timeline-rate">Backend scope • API bid accepted after code sample • Positive LMS feedback</div>
+        </div>
+      </div>
+      <div class="timeline-item" style="animation-delay:0.3s">
+        <div class="timeline-day">DAY 3 — APR 16</div>
+        <div class="timeline-content">
+          <strong style="color:var(--bp-white)">Bid #5</strong> — MySQL Database Design School <em style="color:var(--bp-dim)">(Freelancer)</em><br>
+          <strong style="color:var(--bp-white)">Bid #6</strong> — Portfolio Website for Designer <em style="color:var(--bp-dim)">(PeoplePerHour)</em>
+          <div class="timeline-rate">Mixed tech focus • Portfolio client under review • Insight: lean full-stack</div>
+        </div>
+      </div>
+      <div class="timeline-item" style="animation-delay:0.4s">
+        <div class="timeline-day">DAY 4 — APR 17</div>
+        <div class="timeline-content">
+          <strong style="color:var(--bp-white)">Bid #7</strong> — E-Commerce Cart Feature React <em style="color:var(--bp-dim)">(Freelancer)</em><br>
+          <strong style="color:var(--bp-white)">Bid #8</strong> — Login System with JWT Node.js <em style="color:var(--bp-dim)">(PeoplePerHour)</em>
+          <div class="timeline-rate">Core strengths targeted • Cart bid accepted • Live demo links > GitHub links</div>
+        </div>
+      </div>
+      <div class="timeline-item" style="animation-delay:0.5s">
+        <div class="timeline-day">DAY 5 — APR 18</div>
+        <div class="timeline-content">
+          <strong style="color:var(--bp-white)">Bid #9</strong> — CRUD Admin Panel with MySQL <em style="color:var(--bp-dim)">(Freelancer)</em><br>
+          <strong style="color:var(--bp-white)">Bid #10</strong> — Responsive Pricing Page CSS <em style="color:var(--bp-dim)">(PeoplePerHour)</em>
+          <div class="timeline-rate" style="color:var(--bp-green)">100% response rate • Pricing page delivered same-day • ⭐ 5-star review received</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ALL BIDS TABLE ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">§03</span>
+      <span class="section-title">Bid Overview &amp; Outcomes</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="bid-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Project</th>
+            <th>Platform</th>
+            <th>Timeline</th>
+            <th>Outcome</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>01</td><td>Apr 14</td><td>Landing Page — Coffee Shop</td><td>Freelancer</td><td>3 days</td>
+            <td><span class="outcome-badge badge-accepted">✓ ACCEPTED</span></td>
+          </tr>
+          <tr>
+            <td>02</td><td>Apr 14</td><td>React Product Listing Component</td><td>PPH</td><td>2 days</td>
+            <td><span class="outcome-badge badge-noreply">NO REPLY</span></td>
+          </tr>
+          <tr>
+            <td>03</td><td>Apr 15</td><td>Node.js REST API — Blog App</td><td>Freelancer</td><td>4 days</td>
+            <td><span class="outcome-badge badge-delivered">DELIVERED</span></td>
+          </tr>
+          <tr>
+            <td>04</td><td>Apr 15</td><td>LMS Dashboard React</td><td>PPH</td><td>5 days</td>
+            <td><span class="outcome-badge badge-positive">+ FEEDBACK</span></td>
+          </tr>
+          <tr>
+            <td>05</td><td>Apr 16</td><td>MySQL DB Design — School</td><td>Freelancer</td><td>2 days</td>
+            <td><span class="outcome-badge badge-noreply">NO REPLY</span></td>
+          </tr>
+          <tr>
+            <td>06</td><td>Apr 16</td><td>Portfolio Website — Designer</td><td>PPH</td><td>3 days</td>
+            <td><span class="outcome-badge badge-review">UNDER REVIEW</span></td>
+          </tr>
+          <tr>
+            <td>07</td><td>Apr 17</td><td>E-Commerce Cart — React</td><td>Freelancer</td><td>4 days</td>
+            <td><span class="outcome-badge badge-accepted">✓ ACCEPTED</span></td>
+          </tr>
+          <tr>
+            <td>08</td><td>Apr 17</td><td>JWT Login System — Node.js</td><td>PPH</td><td>3 days</td>
+            <td><span class="outcome-badge badge-noreply">NO REPLY</span></td>
+          </tr>
+          <tr>
+            <td>09</td><td>Apr 18</td><td>CRUD Admin Panel MySQL</td><td>Freelancer</td><td>5 days</td>
+            <td><span class="outcome-badge badge-review">NEGOTIATING</span></td>
+          </tr>
+          <tr>
+            <td>10</td><td>Apr 18</td><td>Responsive Pricing Page CSS</td><td>PPH</td><td>1 day</td>
+            <td><span class="outcome-badge badge-delivered">⭐ DELIVERED</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── RESPONSE RATE CHART ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">§04</span>
+      <span class="section-title">Part 4 — Communications Log</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">// Daily Response Rate Visualization</div>
+
+      <div class="bar-row">
+        <span class="bar-label">DAY 01</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:50%;background:linear-gradient(90deg,#1a5c8a,var(--bp-bright));animation-delay:0.1s"></div>
+        </div>
+        <span class="bar-val">50%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">DAY 02</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:50%;background:linear-gradient(90deg,#1a5c8a,var(--bp-bright));animation-delay:0.2s"></div>
+        </div>
+        <span class="bar-val">50%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">DAY 03</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:50%;background:linear-gradient(90deg,#1a5c8a,var(--bp-bright));animation-delay:0.3s"></div>
+        </div>
+        <span class="bar-val">50%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">DAY 04</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:50%;background:linear-gradient(90deg,#1a5c8a,var(--bp-bright));animation-delay:0.4s"></div>
+        </div>
+        <span class="bar-val">50%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">DAY 05</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:100%;background:linear-gradient(90deg,#1a6c5a,var(--bp-green));animation-delay:0.5s"></div>
+        </div>
+        <span class="bar-val" style="color:var(--bp-green)">100%</span>
+      </div>
+
+      <div style="margin-top:20px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--bp-dim)">
+        // Overall: 6 / 10 responses → 60% rate · Best day: Day 5 (Friday)
+      </div>
+    </div>
+  </div>
+
+  <!-- ── KEY INSIGHTS ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">§05</span>
+      <span class="section-title">Part 5-6 — Reflections &amp; Insights</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="insights-grid">
+      <div class="insight-card" data-num="01">
+        <div class="insight-title"><div class="insight-icon"></div>Live Demos Win</div>
+        <div class="insight-body">Clients respond more to deployed live demos than GitHub repositories. Non-technical clients interact with output, not source code. Always include a preview URL in bids.</div>
+      </div>
+      <div class="insight-card" data-num="02">
+        <div class="insight-title"><div class="insight-icon"></div>Specificity Signals Competence</div>
+        <div class="insight-body">Asking 3 targeted, project-specific questions showed genuine engagement. Generic questions ("What's your budget?") were avoided. Custom questions drove higher trust scores.</div>
+      </div>
+      <div class="insight-card" data-num="03">
+        <div class="insight-title"><div class="insight-icon"></div>Transparency Builds Trust</div>
+        <div class="insight-body">Stating the portfolio-building motivation plainly made clients comfortable. It reframed "free" from a quality concern to a mutual benefit — a compelling value proposition.</div>
+      </div>
+      <div class="insight-card" data-num="04">
+        <div class="insight-title"><div class="insight-icon"></div>Same-Day Response Converts</div>
+        <div class="insight-body">Clients who received replies within 30 minutes were significantly more likely to continue conversations. Speed of response is a proxy for professionalism and reliability.</div>
+      </div>
+      <div class="insight-card" data-num="05">
+        <div class="insight-title"><div class="insight-icon"></div>Concise Proposals Win</div>
+        <div class="insight-body">Proposals shrank from ~400 words (Day 1) to ~250 words (Day 5) with better outcomes. Clients skim — a dense, scannable proposal with a clear offer outperforms a personal essay.</div>
+      </div>
+      <div class="insight-card" data-num="06">
+        <div class="insight-title"><div class="insight-icon"></div>Full-Stack is Competitive Edge</div>
+        <div class="insight-body">Single-technology bids (MySQL-only) underperformed. The React + Node.js + MySQL combination gave a clear advantage on full-stack projects where no single freelancer dominated.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DELIVERABLES ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">§07</span>
+      <span class="section-title">Part 7 — Deliverables</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="deliverable-list">
+      <div class="deliverable-item">
+        <div class="del-num">D-01</div>
+        <div>
+          <div class="del-title">Platform Profile Screenshots</div>
+          <div class="del-desc">Freelancer.com (AlishbaMalikDev) + PeoplePerHour (alishbamalikdev) — profile pages, verification badges, skill sections, headline text</div>
+        </div>
+      </div>
+      <div class="deliverable-item">
+        <div class="del-num">D-02</div>
+        <div>
+          <div class="del-title">Bids Excel Spreadsheet — AlexJohnson_Bids_Log.xlsx</div>
+          <div class="del-desc">All 10 bids with date, project, platform, proposal text, GitHub links shared, client response, follow-up action, outcome, and notes (12 columns)</div>
+        </div>
+      </div>
+      <div class="deliverable-item">
+        <div class="del-num">D-03</div>
+        <div>
+          <div class="del-title">Communication Screenshots</div>
+          <div class="del-desc">Full message threads: CafeBloom (12 msgs, accepted), Node.js API (4 msgs), CRUD Admin (3 msgs), LMS client (2 msgs), Portfolio client (3 msgs), Mark R. Pricing (6 msgs + ⭐ review)</div>
+        </div>
+      </div>
+      <div class="deliverable-item">
+        <div class="del-num">D-04</div>
+        <div>
+          <div class="del-title">Daily Reflection Documents (×5)</div>
+          <div class="del-desc">Day1–Day5_Reflection_Apr14–18.docx — Each 200–300 words covering bid types, response rate, what worked, areas for improvement, adjustments</div>
+        </div>
+      </div>
+      <div class="deliverable-item">
+        <div class="del-num">D-05</div>
+        <div>
+          <div class="del-title">ShopEase Application Source Code</div>
+          <div class="del-desc">Complete full-stack app: /client (React 18 + Vite) + /server (Node.js + Express + MySQL) with README, live demo, and GitHub deployment</div>
+        </div>
+      </div>
+      <div class="deliverable-item">
+        <div class="del-num">D-06</div>
+        <div>
+          <div class="del-title">GitHub Portfolio (Restructured)</div>
+          <div class="del-desc">github.com/alishbamalik-dev — Profile README, 3 pinned repositories with screenshots, live badges, tech stack badges, and consistent 30-day commit history</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── NEXT STEPS ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">§08</span>
+      <span class="section-title">Next Steps — Paid Freelancing Roadmap</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="insights-grid">
+      <div class="insight-card" data-num="→">
+        <div class="insight-title"><div class="insight-icon" style="background:var(--bp-green);box-shadow:0 0 6px var(--bp-green)"></div>Micro-Rate Pricing</div>
+        <div class="insight-body">Begin at $5–15/hr entry rate to stay competitive, or value-based fixed pricing (e.g. $50 per landing page) for clear-scope deliverables.</div>
+      </div>
+      <div class="insight-card" data-num="→">
+        <div class="insight-title"><div class="insight-icon" style="background:var(--bp-amber);box-shadow:0 0 6px var(--bp-amber)"></div>90-Day Income Goal</div>
+        <div class="insight-body">Target first $200 in freelance income within 90 days. Use 3 completed free projects and 1 five-star review as social proof in all paid proposals.</div>
+      </div>
+      <div class="insight-card" data-num="→">
+        <div class="insight-title"><div class="insight-icon" style="background:#b39ddb;box-shadow:0 0 6px #b39ddb"></div>Expand Portfolio</div>
+        <div class="insight-body">Add Real-Time Chat App (Socket.io) as fourth portfolio project. Upgrade to Freelancer.com premium membership for more bid credits.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <div class="footer">
+    <div class="footer-id">
+      STUDENT: ABDUL SAMI · ID: 8929 · SUBMITTED: APR 20, 2026
+    </div>
+    <div class="footer-stamp">UNIVERSITY ASSIGNMENT · CONFIDENTIAL</div>
+  </div>
+
+</div>
+
+<script>
+  // Animate stat numbers counting up
+  document.querySelectorAll('.stat-num').forEach(el => {
+    const text = el.textContent.trim();
+    const num = parseFloat(text.replace(/[^0-9.]/g,''));
+    if (isNaN(num) || text.includes('⭐')) return;
+    const suffix = text.replace(/[0-9.]/g,'');
+    let start = 0;
+    const duration = 900;
+    const step = (timestamp) => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const val = Math.round(ease * num * 10) / 10;
+      el.textContent = val + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+      else el.textContent = text;
+    };
+    setTimeout(() => requestAnimationFrame(step), 600);
+  });
+</script>
+</body>
+</html>
